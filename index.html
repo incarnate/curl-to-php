@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>curl-to-PHP: Convert Curl commands to PHP code</title>
+		<meta charset="utf-8">
+		<script src="resources/js/jquery.min.js"></script>
+		<script src="resources/js/highlight.pack.js"></script>
+		<script src="resources/js/common.js"></script>
+		<!--<script src="resources/js/json-to-PHP.js"></script> -->
+		<script src="resources/js/curl-to-PHP.js"></script>
+		<link rel="stylesheet" href="resources/css/color-brewer.css">
+		<link rel="stylesheet" href="resources/css/common.css">
+	</head>
+	<body>
+
+		<header>
+			<h1>Curl-to-PHP</h1>
+			<h2>Instantly convert <a href="http://curl.haxx.se/">curl</a> commands to <a href="http://php.net/">PHP</a> code</h2>
+
+			<p>
+				This tool turns a Curl command into PHP code. Currently, it knows the following options: -d/--data, -H/--header, -I/--head, -u/--user, and -X/--request. There's probably bugs; please <a href="https://github.com/incarnate/curl-to-php">contribute on GitHub</a>!
+			</p>
+			
+			<p>
+				This script derives from Matt Holt's excellent <a href="https://github.com/mholt/curl-to-go">curl-to-Go</a>.
+			</p>
+
+			<p class="examples">
+				<a href="javascript:" id="example1">Example 1</a> &middot;
+				<a href="javascript:" id="example2">Example 2</a> &middot;
+				<a href="javascript:" id="example3">Example 3</a> &middot;
+				<a href="javascript:" id="example4">Example 4</a> &middot;
+				<a href="javascript:" id="example5">Example 5</a>
+		</header>
+
+		<main>
+			<textarea id="input" rows="4" placeholder="Paste curl here"></textarea>
+			<div id="output"></div>
+		</main>
+
+
+		<footer>
+			&copy; 2016 - John C <a href="https://github.com/incarnate/curl-to-php">View on GitHub</a>
+		</footer>
+
+	</body>
+</html>
