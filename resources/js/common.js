@@ -56,7 +56,7 @@ $(function()
 
 	// Fill in examples
 	$('#example1').click(function() {
-		$('#input').val('curl echoip.com').keyup();
+		$('#input').val('curl canhazip.com').keyup();
 	});
 	$('#example2').click(function() {
 		$('#input').val('curl https://api.example.com/surprise \\\n     -u banana:coconuts \\\n     -d "sample data"').keyup();

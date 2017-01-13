@@ -178,8 +178,10 @@ function curlToPHP(curl) {
 			data: {}
 		};
 
-		// curl supports multiple URLs but we'll just use the first
-		if (cmd._.length > 1)
+		// prefer --url over unnamed parameter, if it exists; keep first one only
+		if (cmd.url && cmd.url.length > 0)
+			relevant.url = cmd.url[0]
+		else if (cmd._.length > 1)
 			relevant.url = cmd._[1]; // position 1 because index 0 is the curl command itself
 
 		// gather the headers together
@@ -204,6 +206,18 @@ function curlToPHP(curl) {
 		var loadData = function(d) {
 			if (!relevant.method)
 				relevant.method = "POST";
+
+			// curl adds a default Content-Type header if not set explicitly
+			var hasContentType = false;
+			for (var i = 0; i < relevant.headers.length; i++) {
+				if (relevant.headers[i].indexOf("Content-Type") == 0) {
+					hasContentType = true;
+					break;
+				}
+			}
+			if (!hasContentType)
+				relevant.headers.push("Content-Type: application/x-www-form-urlencoded");
+
 			for (var i = 0; i < d.length; i++)
 			{
 				if (d[i].length > 0 && d[i][0] == "@")
@@ -295,8 +309,7 @@ function parseCommand(input, options) {
 		input = input.substr(1).trim();
 
 	for (cursor = 0; cursor < input.length; cursor++) {
-		if (whitespace(input[cursor]))
-			continue;
+		skipWhitespace();
 		if (input[cursor] == "-") {
 			flagSet();
 		} else {
@@ -374,7 +387,7 @@ function parseCommand(input, options) {
 	// in the special case of the \$ sequence, the backslash is retained
 	// so other code can decide whether to treat as an env var or not.
 	function nextString(endChar) {
-		for (; cursor < input.length && whitespace(input[cursor]); cursor++); // skip whitespace
+		skipWhitespace();
 
 		var str = "";
 
@@ -391,8 +404,8 @@ function parseCommand(input, options) {
 		for (; cursor < input.length; cursor++) {
 			if (quoted) {
 				if (input[cursor] == quoteCh && !escaped) {
-					cursor++; // skip closing quote
-					return str;
+					quoted = false;
+					continue;
 				}
 			}
 			if (!quoted) {
@@ -418,6 +431,16 @@ function parseCommand(input, options) {
 		}
 
 		return str;
+	}
+
+	// skipWhitespace skips whitespace between tokens, taking into account escaped whitespace.
+	function skipWhitespace() {
+		for (; cursor < input.length; cursor++) {
+			while (input[cursor] == "\\" && (cursor < input.length-1 && whitespace(input[cursor+1])))
+				cursor++;
+			if (!whitespace(input[cursor]))
+				break;
+		}
 	}
 
 	// whitespace returns true if ch is a whitespace character.
