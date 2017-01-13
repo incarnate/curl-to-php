@@ -1,6 +1,6 @@
 /*
 	curl-to-PHP
-	
+
 	By John C
 	Based on curl-to-Go by Matt Holt (https://github.com/mholt/curl-to-go)
 
@@ -44,10 +44,10 @@ function curlToPHP(curl) {
 		throw "Not a curl command";
 
 	var req = extractRelevantPieces(cmd);
-	
+
 	var code = promo+"\n"+start;
 	code += 'curl_setopt($ch, CURLOPT_URL, '+phpExpandEnv(req.url)+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
-	
+
 	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.basicauth) {
 		return code+renderSimple(req.method);
 	} else {
@@ -63,7 +63,7 @@ function curlToPHP(curl) {
 			php = 'curl_setopt($ch, CURLOPT_CUSTOMREQUEST, \'HEAD\');\ncurl_setopt($ch, CURLOPT_NOBODY, true);\n';
 		else if (method != "GET")
 			php = 'curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '+phpExpandEnv(method)+');\n';
-		
+
 		return php + '\n' + result + '\n' + err + endCurl;
 	}
 
@@ -133,7 +133,7 @@ function curlToPHP(curl) {
 				// ascii values first, followed by the files.
 				php += ioReaders.join(",\n    ");
 				php += '\n);\n';
-				php += 'curl_setopt($ch, CURLOPT_POSTFIELDS, $post);\n'; 
+				php += 'curl_setopt($ch, CURLOPT_POSTFIELDS, $post);\n';
 			}
 		}
 		if (req.method == "POST")
@@ -146,6 +146,11 @@ function curlToPHP(curl) {
 		// set basic auth
 		if (req.basicauth) {
 			php += 'curl_setopt($ch, CURLOPT_USERPWD, '+phpExpandEnv(req.basicauth.user)+' . ":" . '+phpExpandEnv(req.basicauth.pass)+');\n';
+		}
+
+		// set compressed
+		if (req.compressed) {
+			php += 'curl_setopt($ch, CURLOPT_ENCODING, \'gzip, deflate\');\n';
 		}
 
 		// set headers
@@ -234,6 +239,8 @@ function curlToPHP(curl) {
 			relevant.data.ascii = dataAscii.join("&");
 		if (dataFiles.length > 0)
 			relevant.data.files = dataFiles;
+		if (cmd.compressed)
+			relevant.compressed = true;
 
 		// between -u and --user, choose the long form...
 		var basicAuthString = "";
@@ -425,7 +432,7 @@ function parseCommand(input, options) {
 				if (!(cursor < input.length-1 && input[cursor+1] == '$'))
 					continue;
 			}
-			
+
 			str += input[cursor];
 			escaped = false;
 		}
