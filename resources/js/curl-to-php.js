@@ -48,7 +48,7 @@ function curlToPHP(curl) {
 	var code = promo+"\n"+start;
 	code += 'curl_setopt($ch, CURLOPT_URL, '+phpExpandEnv(req.url)+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
 
-	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.basicauth) {
+	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.basicauth && !req.compressed) {
 		return code+renderSimple(req.method);
 	} else {
 		return code+renderComplex(req);
@@ -235,6 +235,8 @@ function curlToPHP(curl) {
 			loadData(cmd.d);
 		if (cmd.data)
 			loadData(cmd.data);
+		if (cmd['data-binary'])
+			loadData(cmd['data-binary']);
 		if (dataAscii.length > 0)
 			relevant.data.ascii = dataAscii.join("&");
 		if (dataFiles.length > 0)
