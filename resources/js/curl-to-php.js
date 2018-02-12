@@ -48,7 +48,7 @@ function curlToPHP(curl) {
 	var code = promo+"\n"+start;
 	var target_url = phpExpandEnv(req.url);
 	code += 'curl_setopt($ch, CURLOPT_URL, '+target_url+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
-	if( target_url.substring(0, 5) == "https" ) {
+	if( target_url.startsWith("https") ) {
 		code += 'curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);\ncurl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);\n';
 	}
 	
