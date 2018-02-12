@@ -46,8 +46,12 @@ function curlToPHP(curl) {
 	var req = extractRelevantPieces(cmd);
 
 	var code = promo+"\n"+start;
-	code += 'curl_setopt($ch, CURLOPT_URL, '+phpExpandEnv(req.url)+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
-
+	var target_url = phpExpandEnv(req.url);
+	code += 'curl_setopt($ch, CURLOPT_URL, '+target_url+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
+	if( target_url.startsWith("https") ) {
+		code += 'curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);\ncurl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);\n';
+	}
+	
 	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.basicauth && !req.compressed) {
 		return code+renderSimple(req.method);
 	} else {
