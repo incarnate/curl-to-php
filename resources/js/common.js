@@ -29,7 +29,7 @@ $(function()
 		try {
 			var output = curlToPHP(input);
 			if (output) {
-				var coloredOutput = hljs.highlight("go", output);
+				var coloredOutput = hljs.highlight("php", output);
 				$('#output').html(coloredOutput.value);
 			}
 		} catch (e) {
