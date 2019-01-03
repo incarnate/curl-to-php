@@ -119,7 +119,7 @@ function curlToPHP(curl) {
 				var varName = "file";
 				for (var i = 0; i < req.data.files.length; i++) {
 					var thisVarName = (req.data.files.length > 1 ? varName+(i+1) : varName);
-					ioReaders.push('"'+thisVarName+'" => "@" .realpath('+phpExpandEnv(req.data.files[i])+')');
+					ioReaders.push('\''+thisVarName+'\' => \'@\' .realpath('+phpExpandEnv(req.data.files[i])+')');
 				}
 			}
 
@@ -147,7 +147,7 @@ function curlToPHP(curl) {
 
 		// set basic auth
 		if (req.basicauth) {
-			php += 'curl_setopt($ch, CURLOPT_USERPWD, '+phpExpandEnv(req.basicauth.user)+' . ":" . '+phpExpandEnv(req.basicauth.pass)+');\n';
+			php += 'curl_setopt($ch, CURLOPT_USERPWD, '+phpExpandEnv(req.basicauth.user)+' . \':\' . '+phpExpandEnv(req.basicauth.pass)+');\n';
 		}
 
 		// set compressed
@@ -294,7 +294,7 @@ function curlToPHP(curl) {
 				return '$_ENV["'+phpEsc(s).replace(/\$/g, '')+'"]';
 			}
 		}
-		return '"'+phpEsc(s)+'"';
+		return '\''+phpEsc(s)+'\'';
 	}
 
 	// phpEsc escapes characters in s so that it is safe to use s in
