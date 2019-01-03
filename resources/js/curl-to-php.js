@@ -217,7 +217,7 @@ function curlToPHP(curl) {
 			// curl adds a default Content-Type header if not set explicitly
 			var hasContentType = false;
 			for (var i = 0; i < relevant.headers.length; i++) {
-				if (relevant.headers[i].indexOf("Content-Type") == 0) {
+				if (toTitleCase(relevant.headers[i]).indexOf("Content-Type") == 0) {
 					hasContentType = true;
 					break;
 				}
