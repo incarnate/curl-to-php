@@ -81,6 +81,14 @@ function curlToPHP(curl) {
 			headers[toTitleCase(name)] = value;
 		}
 
+		// set request type header
+		if (req.method == "POST")
+			php += 'curl_setopt($ch, CURLOPT_POST, 1);\n';
+		else if (req.method == "HEAD")
+			php += 'curl_setopt($ch, CURLOPT_CUSTOMREQUEST, \'HEAD\');\ncurl_setopt($ch, CURLOPT_NOBODY, true);\n';
+		else
+			php += 'curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '+phpExpandEnv(req.method)+');\n\n';
+
 		// load body data
 		// KNOWN ISSUE: -d and --data are treated like --data-binary in
 		// that we don't strip out carriage returns and newlines.
@@ -126,7 +134,7 @@ function curlToPHP(curl) {
 			// render PHP code to put all the data in the body, concatenating if necessary
 			if (ioReaders.length == 1 && typeof varName == 'undefined') {
 				//If variable have code ".. -d attributes='{...", delete quotes.
-                                ioReaders[0] = ioReaders[0].replace(/\=[\'\"]\{([^$]+)\}[\'\"]/, '={$1}');
+				ioReaders[0] = ioReaders[0].replace(/\=[\'\"]\{([^$]+)\}[\'\"]/, '={$1}');
 				php += 'curl_setopt($ch, CURLOPT_POSTFIELDS, '+ioReaders[0]+');\n';
 			} else if (ioReaders.length > 0) {
 				php += '$post = array(\n    ';
@@ -138,12 +146,6 @@ function curlToPHP(curl) {
 				php += 'curl_setopt($ch, CURLOPT_POSTFIELDS, $post);\n';
 			}
 		}
-		if (req.method == "POST")
-			php += 'curl_setopt($ch, CURLOPT_POST, 1);\n';
-		else if (req.method == "HEAD")
-			php += 'curl_setopt($ch, CURLOPT_CUSTOMREQUEST, \'HEAD\');\ncurl_setopt($ch, CURLOPT_NOBODY, true);\n';
-		else
-			php += 'curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '+phpExpandEnv(req.method)+');\n\n';
 
 		// set basic auth
 		if (req.basicauth) {
