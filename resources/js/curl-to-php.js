@@ -48,7 +48,7 @@ function curlToPHP(curl) {
 	var code = promo+"\n"+start;
 	code += 'curl_setopt($ch, CURLOPT_URL, '+phpExpandEnv(req.url)+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
 
-	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.basicauth && !req.compressed) {
+	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.data.multipart && !req.basicauth && !req.compressed) {
 		return code+renderSimple(req.method);
 	} else {
 		return code+renderComplex(req);
@@ -93,7 +93,7 @@ function curlToPHP(curl) {
 		// KNOWN ISSUE: -d and --data are treated like --data-binary in
 		// that we don't strip out carriage returns and newlines.
 		var defaultPayloadVar = "$body";
-		if (req.data.ascii || req.data.files) {
+		if (req.data.ascii || req.data.files || req.data.multipart) {
 			var ioReaders = [];
 
 			// if there's text data...
@@ -128,6 +128,25 @@ function curlToPHP(curl) {
 				for (var i = 0; i < req.data.files.length; i++) {
 					var thisVarName = (req.data.files.length > 1 ? varName+(i+1) : varName);
 					ioReaders.push('\''+thisVarName+'\' => \'@\' .realpath('+phpExpandEnv(req.data.files[i])+')');
+				}
+			}
+
+			// if multipart data...
+			if (req.data.multipart && req.data.multipart.length > 0) {
+				for (var i = 0; i < req.data.multipart.length; i++) {
+					var arg = req.data.multipart[i];
+
+					var argSplit = arg.indexOf("=");
+					if (argSplit > -1) {
+						var argValue = arg.substr(argSplit+1);
+						var argName = arg.substr(0, argSplit);
+						if(argValue.startsWith("@")){ //if it a file
+							ioReaders.push('\''+argName+'\' => \'@\' .realpath('+phpExpandEnv(argValue.substr(1))+')');
+						}
+						else{
+							ioReaders.push('\''+argName+'\' => '+ phpExpandEnv(argValue));
+						}
+					}
 				}
 			}
 
@@ -211,8 +230,9 @@ function curlToPHP(curl) {
 
 		// join multiple request body data, if any
 		var dataAscii = [];
+		var dataMultipart = [];
 		var dataFiles = [];
-		var loadData = function(d) {
+		var loadData = function(d, multipart) {
 			if (!relevant.method)
 				relevant.method = "POST";
 
@@ -224,12 +244,14 @@ function curlToPHP(curl) {
 					break;
 				}
 			}
-			if (!hasContentType)
+			if (!hasContentType && !multipart)
 				relevant.headers.push("Content-Type: application/x-www-form-urlencoded");
 
 			for (var i = 0; i < d.length; i++)
 			{
-				if (d[i].length > 0 && d[i][0] == "@")
+				if (multipart)
+					dataMultipart.push(d[i]);
+				else if (d[i].length > 0 && d[i][0] == "@")
 					dataFiles.push(d[i].substr(1));
 				else
 					dataAscii.push(d[i]);
@@ -241,12 +263,22 @@ function curlToPHP(curl) {
 			loadData(cmd.data);
 		if (cmd['data-binary'])
 			loadData(cmd['data-binary']);
+		if (cmd.F)
+			loadData(cmd.F, true);
+		if (cmd.form)
+			loadData(cmd.form, true);
+
 		if (dataAscii.length > 0)
 			relevant.data.ascii = dataAscii.join("&");
+
+		if(dataMultipart.length > 0)
+			relevant.data.multipart = dataMultipart;
+
 		if (dataFiles.length > 0)
 			relevant.data.files = dataFiles;
 		if (cmd.compressed)
 			relevant.compressed = true;
+
 
 		// between -u and --user, choose the long form...
 		var basicAuthString = "";
