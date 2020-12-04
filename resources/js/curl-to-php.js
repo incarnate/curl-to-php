@@ -156,7 +156,7 @@ if( req.url.substring(0, 5) == "https" ) {
 			// render PHP code to put all the data in the body, concatenating if necessary
 			if (ioReaders.length == 1 && typeof varName == 'undefined') {
 				//If variable have code ".. -d attributes='{...", delete quotes.
-				ioReaders[0] = ioReaders[0].replace(/\=[\']\{([^$]+)\}[\']/, '={$1}');
+				ioReaders[0] = ioReaders[0].replace(/\=[\']\{([^$]+)\}[']/, '={$1}');
 				php += 'curl_setopt($ch, CURLOPT_POSTFIELDS, '+ioReaders[0]+');\n';
 			} else if (ioReaders.length > 0) {
 				php += '$post = array(\n    ';
@@ -339,7 +339,7 @@ if (cmd['data-raw'])
 	// phpEsc escapes characters in s so that it is safe to use s in
 	// a "quoted string" in a PHP program
 	function phpEsc(s) {
-		return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+		return s.replace(/\\/g, '\\\\').replace(/"/g, '"');
 	}
 }
 
