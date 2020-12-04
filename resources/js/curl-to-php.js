@@ -45,7 +45,7 @@ function curlToPHP(curl) {
 
 	var req = extractRelevantPieces(cmd);
 
-	var code = promo+"\n"+start;
+	var code = start;
 	code += 'curl_setopt($ch, CURLOPT_URL, '+phpExpandEnv(req.url)+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
 
 	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.data.multipart && !req.basicauth && !req.compressed) {
@@ -263,6 +263,8 @@ function curlToPHP(curl) {
 			loadData(cmd.data);
 		if (cmd['data-binary'])
 			loadData(cmd['data-binary']);
+if (cmd['data-raw'])
+			loadData(cmd['data-raw']);
 		if (cmd.F)
 			loadData(cmd.F, true);
 		if (cmd.form)
