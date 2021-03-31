@@ -45,7 +45,7 @@ function curlToPHP(curl) {
 
 	var req = extractRelevantPieces(cmd);
 
-	var code = start;
+	var code = promo+"\n"+start;
 	code += 'curl_setopt($ch, CURLOPT_URL, '+phpExpandEnv(req.url)+');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);\n';
 
 	if (req.headers.length == 0 && !req.data.ascii && !req.data.files && !req.data.multipart && !req.basicauth && !req.compressed) {
@@ -153,7 +153,7 @@ function curlToPHP(curl) {
 			// render PHP code to put all the data in the body, concatenating if necessary
 			if (ioReaders.length == 1 && typeof varName == 'undefined') {
 				//If variable have code ".. -d attributes='{...", delete quotes.
-				ioReaders[0] = ioReaders[0].replace(/\=[\']\{([^$]+)\}[']/, '={$1}');
+				ioReaders[0] = ioReaders[0].replace(/\=[\'\"]\{([^$]+)\}[\'\"]/, '={$1}');
 				php += 'curl_setopt($ch, CURLOPT_POSTFIELDS, '+ioReaders[0]+');\n';
 			} else if (ioReaders.length > 0) {
 				php += '$post = array(\n    ';
@@ -261,10 +261,10 @@ function curlToPHP(curl) {
 			loadData(cmd.d);
 		if (cmd.data)
 			loadData(cmd.data);
+		if (cmd['data-raw'])
+			loadData(cmd['data-raw']);
 		if (cmd['data-binary'])
 			loadData(cmd['data-binary']);
-if (cmd['data-raw'])
-			loadData(cmd['data-raw']);
 		if (cmd.F)
 			loadData(cmd.F, true);
 		if (cmd.form)
@@ -336,7 +336,7 @@ if (cmd['data-raw'])
 	// phpEsc escapes characters in s so that it is safe to use s in
 	// a "quoted string" in a PHP program
 	function phpEsc(s) {
-		return s.replace(/\\/g, '\\\\').replace(/"/g, '"');
+		return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 	}
 }
 
