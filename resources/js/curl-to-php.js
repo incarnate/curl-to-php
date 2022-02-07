@@ -261,8 +261,10 @@ function curlToPHP(curl) {
 			loadData(cmd.d);
 		if (cmd.data)
 			loadData(cmd.data);
-		if (cmd['data-raw'])
+		if (cmd['data-raw']) {
 			loadData(cmd['data-raw']);
+			relevant.method = 'POST';
+		}
 		if (cmd['data-binary'])
 			loadData(cmd['data-binary']);
 		if (cmd.F)
